@@ -12,6 +12,11 @@ namespace queue_sim {
 constexpr double Usec = 0.000001;
 constexpr double Msec = 0.001;
 
+const arctic::Rgba BackgroundColor(255, 255, 255);
+const arctic::Rgba YDBColorDarkViolet(116, 105, 162);
+const arctic::Rgba YDBColorWorker(37, 153, 255);
+const arctic::Rgba YDBColorQueue(124, 142, 224);
+
 // ----------------------------
 // our global time
 
@@ -234,8 +239,12 @@ public:
         // draw rectangle in the middle of the sprite
         arctic::Vec2Si32 bottomLeft(0, yPos);
         arctic::Vec2Si32 topRight(rWidth, yPos + rHeight);
+        DrawRectangle(toSprite, bottomLeft, topRight, YDBColorQueue);
 
-        DrawRectangle(toSprite, bottomLeft, topRight, arctic::Rgba(255, 255, 255, 255));
+        // cut left part
+        arctic::Vec2Si32 bottomLeftCut(0, yPos + 5);
+        arctic::Vec2Si32 topRightCut(10, yPos + rHeight - 5);
+        DrawRectangle(toSprite, bottomLeftCut, topRightCut, BackgroundColor);
 
         // draw queue length in the middle
 
@@ -244,7 +253,7 @@ public:
 
         snprintf(text, sizeof(text), "%s: %s\np90: %d us",
                  Name, queueLengthS.c_str(), QueueTimeUs.GetPercentile(90));
-        GetFont().Draw(toSprite, text, 10, yPos + rHeight / 2 - 20);
+        GetFont().Draw(toSprite, text, 15, yPos + rHeight / 2 - 30);
     }
 
 private:
@@ -478,10 +487,10 @@ public:
         auto minDimension = std::min(width, height);
         auto yPos = height / 2 - minDimension / 2;
 
-        arctic::Vec2Si32 bottomLeft(0, yPos);
-        arctic::Vec2Si32 topRight(minDimension, yPos + minDimension);
+        arctic::Vec2F bottomLeft(0, yPos);
+        arctic::Vec2F blockSize(minDimension, minDimension);
 
-        DrawRectangle(toSprite, bottomLeft, topRight, arctic::Rgba(255, 255, 255, 255));
+        DrawBlock(toSprite, bottomLeft, blockSize, 10, YDBColorWorker, 2, arctic::Rgba(0, 0, 0));
 
         char text[128];
         snprintf(text, sizeof(text), "%s:\n%ld/%ld", Name, BusyProcessorCount, Processors.size());

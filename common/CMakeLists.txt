@@ -20,13 +20,13 @@ set(PROJECT_NAME common)
 # Output Variables
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # Folders files
-set(DATA_DIR .)
+set(DATA_DIR ${CMAKE_SOURCE_DIR}/common/data)
 set(CPP_DIR_1 ${CMAKE_SOURCE_DIR}/arctic/engine)
 set(CPP_DIR_2 .)
 set(HEADER_DIR_1 ${CMAKE_SOURCE_DIR}/arctic/engine)
 set(HEADER_DIR_2 .)
 
-file(GLOB_RECURSE RES_SOURCES "${DATA_DIR}/data/*")
+file(GLOB_RECURSE RES_SOURCES "${DATA_DIR}/*")
 
 ############## Define Project. ###############
 # ---- This the main options of project ---- #
@@ -143,10 +143,10 @@ add_library(common STATIC)
 target_sources(common PRIVATE ${SRC_FILES})
 
 foreach(RES_FILE ${RES_SOURCES})
-  get_filename_component(ABSOLUTE_PATH "${DATA_DIR}/data" ABSOLUTE)
+  get_filename_component(ABSOLUTE_PATH "${DATA_DIR}" ABSOLUTE)
   file(RELATIVE_PATH RES_PATH "${ABSOLUTE_PATH}" ${RES_FILE})
   get_filename_component(RES_DIR_PATH ${RES_PATH} DIRECTORY)
-  set_property(SOURCE ${RES_FILE} PROPERTY MACOSX_PACKAGE_LOCATION "Resources/data/${RES_DIR_PATH}")
+  set_property(SOURCE ${RES_FILE} PROPERTY MACOSX_PACKAGE_LOCATION "data/${RES_DIR_PATH}")
 endforeach(RES_FILE)
 
 IF (APPLE)

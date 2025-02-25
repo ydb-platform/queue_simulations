@@ -22,7 +22,7 @@ using namespace arctic;  // NOLINT
 // ----------------------------
 // FlushController: events should wait all previous events to finish
 
-class FlushController : public IItemBase {
+class FlushController : public ItemBase {
 public:
     FlushController(const char* name)
         : Name(name)
@@ -80,13 +80,13 @@ public:
         auto minDimension = std::min(width, height);
         auto yPos = height / 2 - minDimension / 2;
 
-        Vec2Si32 bottomLeft(0, yPos);
-        Vec2Si32 topRight(minDimension, yPos + minDimension);
+        Vec2F bottomLeft(0, yPos);
+        Vec2F blockSize(minDimension, minDimension);
 
-        DrawRectangle(toSprite, bottomLeft, topRight, Rgba(255, 255, 255, 255));
+        DrawBlock(toSprite, bottomLeft, blockSize, 10, YDBColorWorker, 2, Rgba(0, 0, 0));
 
         char text[128];
-        snprintf(text, sizeof(text), "%s: %ld\np90: %d us",4
+        snprintf(text, sizeof(text), "%s: %ld\np90: %d us",
                  Name, WaitingEvents.size(), WaitingTimeUs.GetPercentile(90));
         GetFont().Draw(toSprite, text, 10, yPos + minDimension / 2);
     }
@@ -187,7 +187,7 @@ public:
         const Si32 heightWithoutSpacing = height - spacing * 2;
         const Si32 footerHeight = 100;
 
-        size_t space_between_stages = 20;
+        size_t space_between_stages = 25;
         Si32 stage_width = ((widthWithoutSpacing - space_between_stages * (stageCount - 1))) / stageCount;
         Si32 stage_height = heightWithoutSpacing - footerHeight;
 
@@ -198,6 +198,14 @@ public:
             Sprite stageSprite;
             stageSprite.Reference(_Sprite, x, y, stage_width, stage_height);
             stage->Draw(stageSprite);
+
+            if (i != 0) {
+                Si32 prevX = x - space_between_stages;
+                Si32 middleY = y + stage_height / 2;
+                Vec2F src(prevX, middleY);
+                Vec2F dst(x, middleY);
+                DrawArrow(_Sprite, src, dst, 5, 20, 10, Rgba(0, 0, 0));
+            }
         }
 
         char text[512];
@@ -212,7 +220,12 @@ public:
             EventDurationsUs.GetPercentile(99),
             EventDurationsUs.GetPercentile(100)
         );
-        GetFont().Draw(_Sprite, text, spacing, spacing);
+        DrawRectangle(
+            _Sprite,
+            arctic::Vec2Si32(spacing, spacing),
+            arctic::Vec2Si32(width - spacing, 80),
+            YDBColorDarkViolet);
+        GetFont().Draw(_Sprite, text, spacing * 2, spacing * 2);
     }
 
 private:

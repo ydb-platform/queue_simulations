@@ -29,9 +29,9 @@ void SetupCurrentPdiskModel(ClosedPipeLine &pipeline) {
         {1000, 4000 * Usec},
     };
 
-    pipeline.AddQueue("InputQ", startQueueSize);
+    pipeline.AddQueue("InQ", startQueueSize);
     pipeline.AddFixedTimeExecutor("PDisk", pdiskThreads, pdiskExecTime);
-    pipeline.AddQueue("SubmitQ", 0);
+    pipeline.AddQueue("SmbQ", 0);
     pipeline.AddFixedTimeExecutor("Smb", smbThreads, smbExecTime);
     pipeline.AddPercentileTimeExecutor("NVMe", NVMeInflight, diskPercentilesUs);
     pipeline.AddFlushController("Flush");
@@ -57,9 +57,9 @@ void SetupCurrentPdiskModelSlowNVMe(ClosedPipeLine &pipeline) {
         {1000, 4000 * Usec},
     };
 
-    pipeline.AddQueue("InputQ", startQueueSize);
+    pipeline.AddQueue("InQ", startQueueSize);
     pipeline.AddFixedTimeExecutor("PDisk", pdiskThreads, pdiskExecTime);
-    pipeline.AddQueue("SubmitQ", 0);
+    pipeline.AddQueue("SmbQ", 0);
     pipeline.AddFixedTimeExecutor("Smb", smbThreads, smbExecTime);
     pipeline.AddPercentileTimeExecutor("NVMe", NVMeInflight, diskPercentilesUs);
     pipeline.AddFlushController("Flush");
@@ -84,7 +84,7 @@ void EasyMain() {
 
         auto now = Now();
         if (now - prevTime > updateScreenInterval) {
-            Clear();
+            Clear(BackgroundColor);
             prevTime = now;
             pipeline.Draw();
             ShowFrame();
