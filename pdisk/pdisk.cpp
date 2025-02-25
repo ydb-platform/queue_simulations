@@ -16,8 +16,8 @@ void SetupCurrentPdiskModel(ClosedPipeLine &pipeline) {
     constexpr size_t pdiskThreads = 1;
     constexpr double pdiskExecTime = 5 * Usec;
 
-    constexpr size_t smbThreads = 1;
-    constexpr double smbExecTime = 2 * Usec;
+    constexpr size_t sbmThreads = 1;
+    constexpr double sbmExecTime = 2 * Usec;
 
     constexpr size_t NVMeInflight = 128;
     PercentileTimeProcessor::Percentiles diskPercentilesUs = {
@@ -31,8 +31,8 @@ void SetupCurrentPdiskModel(ClosedPipeLine &pipeline) {
 
     pipeline.AddQueue("InQ", startQueueSize);
     pipeline.AddFixedTimeExecutor("PDisk", pdiskThreads, pdiskExecTime);
-    pipeline.AddQueue("SmbQ", 0);
-    pipeline.AddFixedTimeExecutor("Smb", smbThreads, smbExecTime);
+    pipeline.AddQueue("SbmQ", 0);
+    pipeline.AddFixedTimeExecutor("Sbm", sbmThreads, sbmExecTime);
     pipeline.AddPercentileTimeExecutor("NVMe", NVMeInflight, diskPercentilesUs);
     pipeline.AddFlushController("Flush");
 }
@@ -43,8 +43,8 @@ void SetupCurrentPdiskModelSlowNVMe(ClosedPipeLine &pipeline) {
     constexpr size_t pdiskThreads = 1;
     constexpr double pdiskExecTime = 5 * Usec;
 
-    constexpr size_t smbThreads = 1;
-    constexpr double smbExecTime = 2 * Usec;
+    constexpr size_t sbmThreads = 1;
+    constexpr double sbmExecTime = 2 * Usec;
 
     constexpr size_t NVMeInflight = 128;
     PercentileTimeProcessor::Percentiles diskPercentilesUs = {
@@ -59,8 +59,8 @@ void SetupCurrentPdiskModelSlowNVMe(ClosedPipeLine &pipeline) {
 
     pipeline.AddQueue("InQ", startQueueSize);
     pipeline.AddFixedTimeExecutor("PDisk", pdiskThreads, pdiskExecTime);
-    pipeline.AddQueue("SmbQ", 0);
-    pipeline.AddFixedTimeExecutor("Smb", smbThreads, smbExecTime);
+    pipeline.AddQueue("SbmQ", 0);
+    pipeline.AddFixedTimeExecutor("Sbm", sbmThreads, sbmExecTime);
     pipeline.AddPercentileTimeExecutor("NVMe", NVMeInflight, diskPercentilesUs);
     pipeline.AddFlushController("Flush");
 }
