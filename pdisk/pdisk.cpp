@@ -26,7 +26,7 @@ void SetupCurrentPdiskModel(ClosedPipeLine &pipeline) {
         {99.7, 50 * Usec},
         {99.992, 100 * Usec},
         {99.9968, 200 * Usec},
-        {1000, 4000 * Usec},
+        {100, 4000 * Usec},
     };
 
     pipeline.AddQueue("InQ", startQueueSize);
@@ -54,7 +54,7 @@ void SetupCurrentPdiskModelSlowNVMe(ClosedPipeLine &pipeline) {
         {99.956, 100 * Usec},
         {99.983, 200 * Usec},
         {99.983, 200 * Usec},
-        {1000, 4000 * Usec},
+        {100, 4000 * Usec},
     };
 
     pipeline.AddQueue("InQ", startQueueSize);
