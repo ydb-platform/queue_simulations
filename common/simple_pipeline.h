@@ -222,10 +222,10 @@ public:
         );
         DrawRectangle(
             _Sprite,
-            arctic::Vec2Si32(spacing, spacing),
-            arctic::Vec2Si32(width - spacing, 80),
+            arctic::Vec2Si32(spacing, spacing + footerHeight * 2.5),
+            arctic::Vec2Si32(width - spacing, footerHeight * 2.5 + 80),
             YDBColorDarkViolet);
-        GetFont().Draw(_Sprite, text, spacing * 2, spacing * 2);
+        GetFont().Draw(_Sprite, text, spacing * 2, footerHeight * 2.5 + spacing + 5);
     }
 
 private:
