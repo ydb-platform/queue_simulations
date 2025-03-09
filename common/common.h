@@ -12,6 +12,8 @@ namespace queue_sim {
 constexpr double Usec = 0.000001;
 constexpr double Msec = 0.001;
 
+constexpr double LoadAvgIntervalUsec = 1000'000;
+
 const arctic::Rgba BackgroundColor(255, 255, 255);
 const arctic::Rgba YDBColorDarkViolet(116, 105, 162);
 const arctic::Rgba YDBColorWorker(37, 153, 255);
@@ -267,12 +269,22 @@ private:
 
 class ProcessorBase {
 public:
+    ProcessorBase() {
+        IdleStartTime = Now();
+    }
+
     virtual void Tick(double dt) = 0;
 
     virtual void StartWork(Event event) {
         _Event = event;
         _IsWorking = true;
         StartTime = Now();
+        BusyStartTime = StartTime;
+
+        if (IdleStartTime != 0) {
+            IdleTime += StartTime - IdleStartTime;
+            IdleStartTime = 0;
+        }
     }
 
     bool IsBusy() const {
@@ -295,12 +307,46 @@ public:
         StartTime = 0;
         FinishTime = 0;
         _Event.reset();
+
+        IdleStartTime = Now();
+        BusyStartTime = 0;
     }
 
     Event PopEvent() {
         auto event = *_Event;
+
+        BusyTime += Now() - BusyStartTime;
+
         Reset();
         return event;
+    }
+
+    void ResetBusyIdleTime()
+    {
+        BusyTime = 0;
+        IdleTime = 0;
+    }
+
+    double GetBusyTime()
+    {
+        if (BusyStartTime != 0) {
+            BusyTime += Now() - BusyStartTime;
+            BusyStartTime = Now();
+        }
+
+        return BusyTime;
+    }
+
+    double GetIdleTime()
+    {
+        if (IdleStartTime != 0) {
+            IdleTime += Now() - IdleStartTime;
+            IdleStartTime = Now();
+        } else if (!IsBusy()) {
+            IdleStartTime = Now();
+        }
+
+        return IdleTime;
     }
 
 protected:
@@ -309,6 +355,12 @@ protected:
 
     double StartTime = 0;
     double FinishTime = 0;
+
+    double BusyStartTime = 0;
+    double IdleStartTime = 0;
+
+    double BusyTime = 0;
+    double IdleTime = 0;
 
     std::optional<Event> _Event;
 };
@@ -418,6 +470,11 @@ public:
         BusyProcessorCount = 0;
         ReadyEventsCount = 0;
 
+        double totalBusyTime = 0;
+        double totalIdleTime = 0;
+
+        bool updateLastAvg = (Now() - LastLoadAvgUpdateTs) * 1000'000 >= LoadAvgIntervalUsec;
+
         for (auto& processor: Processors) {
             processor.Tick(dt);
             if (processor.IsBusy()) {
@@ -426,6 +483,16 @@ public:
             if (processor.IsEventReady()) {
                 ++ReadyEventsCount;
             }
+            if (updateLastAvg) {
+                totalBusyTime += processor.GetBusyTime();
+                totalIdleTime += processor.GetIdleTime();
+                processor.ResetBusyIdleTime();
+            }
+        }
+
+        if (updateLastAvg) {
+            LastLoadAvg = totalBusyTime / (totalBusyTime + totalIdleTime);
+            LastLoadAvgUpdateTs = Now();
         }
     }
 
@@ -493,8 +560,30 @@ public:
         DrawBlock(toSprite, bottomLeft, blockSize, 10, YDBColorWorker, 2, arctic::Rgba(0, 0, 0));
 
         char text[128];
-        snprintf(text, sizeof(text), "%s:\n%ld/%ld", Name, BusyProcessorCount, Processors.size());
-        GetFont().Draw(toSprite, text, 10, yPos + minDimension / 2);
+        snprintf(text, sizeof(text), "%s:\n%ld/%ld\nLoad: %.2f",
+            Name, BusyProcessorCount, Processors.size(), LastLoadAvg);
+        GetFont().Draw(toSprite, text, 10, yPos + minDimension / 4);
+
+        // visualization for load avg (TODO:s refactor)
+
+        float loadRatio = std::min(1.0, std::max(0.0, LastLoadAvg));
+
+        arctic::Vec2Si32 loadBottomLeft(10, yPos + 10);
+        arctic::Vec2Si32 loadTopRight(10 + (blockSize.x - 20) * loadRatio, yPos + 30);
+
+        arctic::Vec2Si32 fullLoadTopRight(10 + (blockSize.x - 20) * 1.0, yPos + 30);
+
+        arctic::Rgba loadColor;
+        if (loadRatio < 0.5f) {
+            loadColor = arctic::Rgba(0, 200, 0); // green for low load
+        } else if (loadRatio < 0.8f) {
+            loadColor = arctic::Rgba(200, 200, 0); // yellow for medium load
+        } else {
+            loadColor = arctic::Rgba(200, 0, 0); // red for high load
+        }
+
+        DrawRectangle(toSprite, loadBottomLeft, fullLoadTopRight, arctic::Rgba(0, 0, 0));
+        DrawRectangle(toSprite, loadBottomLeft, loadTopRight, loadColor);
     }
 
 private:
@@ -503,6 +592,9 @@ private:
     std::vector<ProcessorType> Processors;
     size_t BusyProcessorCount = 0;
     size_t ReadyEventsCount = 0;
+
+    double LastLoadAvgUpdateTs = 0;
+    double LastLoadAvg = 0;
 };
 
 } // namespace queue_sim
