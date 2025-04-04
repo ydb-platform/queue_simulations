@@ -22,7 +22,7 @@ arctic::Font& GetFont() {
     static arctic::Font font;
     static bool loaded = false;
     if (!loaded) {
-        font.Load("data/arctic_one_bmf.fnt");
+        font.Load("data/JetBrainsMono.fnt");
         loaded = true;
     }
 
