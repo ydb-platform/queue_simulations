@@ -187,7 +187,7 @@ public:
         const Si32 heightWithoutSpacing = height - spacing * 2;
         const Si32 footerHeight = 100;
 
-        size_t space_between_stages = 25;
+        size_t space_between_stages = 50;
         Si32 stage_width = ((widthWithoutSpacing - space_between_stages * (stageCount - 1))) / stageCount;
         Si32 stage_height = heightWithoutSpacing - footerHeight;
 
@@ -222,10 +222,10 @@ public:
         );
         DrawRectangle(
             _Sprite,
-            arctic::Vec2Si32(spacing, spacing + footerHeight * 2.5),
-            arctic::Vec2Si32(width - spacing, footerHeight * 2.5 + 80),
+            arctic::Vec2Si32(spacing, spacing + footerHeight * 2.8),
+            arctic::Vec2Si32(width - spacing, footerHeight * 2.8 + 100),
             YDBColorDarkViolet);
-        GetFont().Draw(_Sprite, text, spacing * 2, footerHeight * 2.5 + spacing + 5);
+        GetFont().Draw(_Sprite, text, spacing * 2, footerHeight * 2.8 + spacing + 5);
     }
 
 private:

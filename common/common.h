@@ -562,7 +562,7 @@ public:
         char text[128];
         snprintf(text, sizeof(text), "%s:\n%ld/%ld\nLoad: %.2f",
             Name, BusyProcessorCount, Processors.size(), LastLoadAvg);
-        GetFont().Draw(toSprite, text, 10, yPos + minDimension / 4);
+        GetFont().Draw(toSprite, text, 5, yPos + minDimension / 4);
 
         // visualization for load avg (TODO:s refactor)
 

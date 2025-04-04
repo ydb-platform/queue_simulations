@@ -66,7 +66,7 @@ void SetupCurrentPdiskModelSlowNVMe(ClosedPipeLine &pipeline) {
 }
 
 void EasyMain() {
-    ResizeScreen(1024, 768);
+    ResizeScreen(1920, 1080);
 
     ClosedPipeLine pipeline(GetEngine()->GetBackbuffer());
     SetupCurrentPdiskModelSlowNVMe(pipeline);
